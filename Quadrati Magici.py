@@ -75,6 +75,6 @@ def main():
                 break 
         stampa_matrice(matrice, costante_magica)
 
-# Avvio del programma
+
 if __name__ == "__main__":
     main()
