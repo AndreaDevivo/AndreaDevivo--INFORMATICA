@@ -1,12 +1,12 @@
 import random
 
 
-# Funzione per generare il valore di un dado
+
 def lancia_dado(sides):
     return random.randint(1, sides)
 
 
-# Funzione per generare le statistiche dei personaggi
+
 def crea_personaggio(nome):
     if nome == "Guerriero":
         vita = random.randint(100, 120)
@@ -43,7 +43,7 @@ def crea_personaggio(nome):
     }
 
 
-# Funzione per eseguire l'abilità speciale
+
 def abilita_speciale(personaggio):
     if personaggio["abilita"] == "Berserk":
         dado = lancia_dado(6)
@@ -76,12 +76,12 @@ def abilita_speciale(personaggio):
         return f"Cura per il compagno più debole: {cura}"
 
 
-# Funzione per determinare l'attacco
+
 def esegui_attacco(attaccante, difensore):
     if attaccante["energia"] >= 2:
         # Attacco
         attaccante["energia"] -= 2
-        danno = max(attaccante["attacco"] - difensore["difesa"], 0)  # Calcola danno
+        danno = max(attaccante["attacco"] - difensore["difesa"], 0)  
         difensore["vita"] -= danno
         return f"{attaccante['nome']} attacca {difensore['nome']} causando {danno} danni."
     else:
@@ -91,7 +91,7 @@ def esegui_attacco(attaccante, difensore):
         return f"{attaccante['nome']} riposa e recupera energia."
 
 
-# Funzione per eseguire il combattimento tra due squadre
+
 def combattimento(party1, party2):
     turno = 0
     while party1 and party2:  # Finché entrambe le squadre sono vive
@@ -100,33 +100,32 @@ def combattimento(party1, party2):
         print(f"\nTurno {turno + 1}")
         print(f"{attaccante['nome']} attacca {difensore['nome']}")
 
-        # Esegui l'attacco
+     
         esito_attacco = esegui_attacco(attaccante, difensore)
         print(esito_attacco)
 
-        # Esegui l'abilità speciale
+    
         esito_abilita = abilita_speciale(attaccante)
         print(f"Abilità speciale attivata: {esito_abilita}")
 
-        # Verifica la condizione di vittoria
+    
         if difensore["vita"] <= 0:
             print(f"{difensore['nome']} è stato eliminato!")
             party2.remove(difensore)
 
         turno += 1
 
-    # Verifica la vittoria
+
     if len(party1) == 0:
         print("La squadra 2 ha vinto!")
     elif len(party2) == 0:
         print("La squadra 1 ha vinto!")
 
 
-# Crea un party con i 4 personaggi
+
 party1 = [crea_personaggio("Guerriero"), crea_personaggio("Mago"), crea_personaggio("Ladro"),
           crea_personaggio("Chierico")]
 party2 = [crea_personaggio("Guerriero"), crea_personaggio("Mago"), crea_personaggio("Ladro"),
           crea_personaggio("Chierico")]
 
-# Avvia il combattimento
 combattimento(party1, party2)
