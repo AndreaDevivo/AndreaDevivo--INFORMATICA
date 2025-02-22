@@ -1,131 +1,85 @@
 import random
 
+# Definizione delle classi e dei loro parametri
+CLASSI = {
+    "Guerriero": {"vita": (100, 120), "energia": (8, 10), "difesa": (4, 8), "attacco": (2, 6), "abilita": (1, 6)},
+    "Mago": {"vita": (70, 90), "energia": (14, 18), "difesa": (3, 5), "attacco": (1, 20), "abilita": (1, 8)},
+    "Ladro": {"vita": (80, 100), "energia": (10, 12), "difesa": (3, 5), "attacco": (3, 4), "abilita": (1, 4)},
+    "Chierico": {"vita": (80, 100), "energia": (10, 12), "difesa": (4, 6), "attacco": (1, 12), "abilita": (1, 6)}
+}
 
-
-def lancia_dado(sides):
-    return random.randint(1, sides)
-
-
-
-def crea_personaggio(nome):
-    if nome == "Guerriero":
-        vita = random.randint(100, 120)
-        energia = random.randint(8, 10)
-        difesa = random.randint(4, 8)
-        attacco = sum([lancia_dado(6) for _ in range(2)])  # 2d6
-        abilita = "Berserk"
-    elif nome == "Mago":
-        vita = random.randint(70, 90)
-        energia = random.randint(14, 18)
-        difesa = random.randint(3, 5)
-        attacco = lancia_dado(20)  # 1d20
-        abilita = "Concentrazione assoluta"
-    elif nome == "Ladro":
-        vita = random.randint(80, 100)
-        energia = random.randint(10, 12)
-        difesa = random.randint(3, 5)
-        attacco = sum([lancia_dado(4) for _ in range(3)])  # 3d4
-        abilita = "Pugnali acidi"
-    elif nome == "Chierico":
-        vita = random.randint(80, 100)
-        energia = random.randint(10, 12)
-        difesa = random.randint(4, 6)
-        attacco = lancia_dado(12)  # 1d12
-        abilita = "Favore degli dei"
-
+def crea_personaggio(tipo):
+    """Crea un personaggio con valori casuali."""
+    attributi = CLASSI[tipo]
     return {
-        "nome": nome,
-        "vita": vita,
-        "energia": energia,
-        "difesa": difesa,
-        "attacco": attacco,
-        "abilita": abilita,
+        "tipo": tipo,
+        "vita": random.randint(*attributi["vita"]),
+        "energia": random.randint(*attributi["energia"]),
+        "difesa": random.randint(*attributi["difesa"]),
+        "attacco": attributi["attacco"],
+        "abilita": attributi["abilita"]
     }
 
+def crea_squadra():
+    """Crea una squadra con un personaggio per classe."""
+    return [crea_personaggio(tipo) for tipo in CLASSI]
 
+def lancia_dadi(numero, facce):
+    """Simula il lancio di più dadi."""
+    return sum(random.randint(1, facce) for _ in range(numero))
 
-def abilita_speciale(personaggio):
-    if personaggio["abilita"] == "Berserk":
-        dado = lancia_dado(6)
-        if dado >= 5:
-            return "Attacco extra"
-        elif dado >= 3:
-            perdita_vita = max(1, personaggio["vita"] // 5)  # 20% della vita
-            personaggio["vita"] -= perdita_vita
-            return f"Attacco extra, perdita di vita: {perdita_vita}"
-        else:
-            perdita_vita = max(1, personaggio["vita"] // 5)  # 20% della vita
-            personaggio["vita"] -= perdita_vita
-            return f"Perdita di vita: {perdita_vita}"
+def scegli_bersaglio(attaccante, nemici):
+    """Determina il bersaglio in base alla classe dell'attaccante."""
+    if attaccante["tipo"] == "Guerriero":
+        return max(nemici, key=lambda p: p["vita"], default=None)
+    elif attaccante["tipo"] == "Mago":
+        return random.choice(nemici[len(nemici)//2-1:len(nemici)//2+1])
+    elif attaccante["tipo"] == "Ladro":
+        return min(nemici, key=lambda p: p["vita"], default=None)
+    elif attaccante["tipo"] == "Chierico":
+        return random.choice([nemici[0], nemici[-1]])
+    return None
 
-    elif personaggio["abilita"] == "Concentrazione assoluta":
-        dado = lancia_dado(6)
-        if dado >= 5:
-            incremento_attacco = lancia_dado(4)
-            personaggio["attacco"] += incremento_attacco
-            return f"Incremento attacco di {incremento_attacco}"
+def attacca(attaccante, bersaglio):
+    """Esegue l'attacco di un personaggio."""
+    if attaccante["energia"] < 2:
+        attaccante["energia"] = CLASSI[attaccante["tipo"]]["energia"][1] 
+        return
+    danno = max(0, lancia_dadi(*attaccante["attacco"]) - bersaglio["difesa"])
+    bersaglio["vita"] -= danno
+    attaccante["energia"] -= 2
 
-    elif personaggio["abilita"] == "Pugnali acidi":
-        dado1 = lancia_dado(4)
-        dado2 = lancia_dado(4)
-        if dado1 + dado2 >= 7:
-            return "Riduzione difesa nemici del 25%"
+def usa_abilita(personaggio, nemici, alleati):
+    """Attiva l'abilità speciale se possibile."""
+    if lancia_dadi(1, personaggio["abilita"][1]) == personaggio["abilita"][1]:
+        if personaggio["tipo"] == "Guerriero":
+            if lancia_dadi(1, 6) >= 5:
+                attacca(personaggio, scegli_bersaglio(personaggio, nemici))
+        elif personaggio["tipo"] == "Mago":
+            personaggio["attacco"] = (personaggio["attacco"][0] + 1, personaggio["attacco"][1])
+        elif personaggio["tipo"] == "Ladro":
+            if lancia_dadi(2, 4) >= 7:
+                for nemico in nemici:
+                    nemico["difesa"] = max(0, nemico["difesa"] - nemico["difesa"] // 4)
+        elif personaggio["tipo"] == "Chierico":
+            piu_debole = min(alleati, key=lambda p: p["vita"], default=None)
+            if piu_debole:
+                piu_debole["vita"] += lancia_dadi(2, 6)
 
-    elif personaggio["abilita"] == "Favore degli dei":
-        cura = sum([lancia_dado(6) for _ in range(2)])  # 2d6
-        return f"Cura per il compagno più debole: {cura}"
+def combattimento(squadra1, squadra2):
+    """Gestisce il combattimento tra le due squadre."""
+    while squadra1 and squadra2:
+        for i in range(min(len(squadra1), len(squadra2))):
+            attacca(squadra1[i], scegli_bersaglio(squadra1[i], squadra2))
+            usa_abilita(squadra1[i], squadra2, squadra1)
+            attacca(squadra2[i], scegli_bersaglio(squadra2[i], squadra1))
+            usa_abilita(squadra2[i], squadra1, squadra2)
+        squadra1 = [p for p in squadra1 if p["vita"] > 0]
+        squadra2 = [p for p in squadra2 if p["vita"] > 0]
+    return "Squadra 1 vince!" if squadra1 else "Squadra 2 vince!"
 
-
-
-def esegui_attacco(attaccante, difensore):
-    if attaccante["energia"] >= 2:
-        # Attacco
-        attaccante["energia"] -= 2
-        danno = max(attaccante["attacco"] - difensore["difesa"], 0)  
-        difensore["vita"] -= danno
-        return f"{attaccante['nome']} attacca {difensore['nome']} causando {danno} danni."
-    else:
-        # Riposo per recuperare energia
-        energia_ripristinata = min(2, difensore["energia"] - attaccante["energia"])
-        attaccante["energia"] += energia_ripristinata
-        return f"{attaccante['nome']} riposa e recupera energia."
-
-
-
-def combattimento(party1, party2):
-    turno = 0
-    while party1 and party2:  # Finché entrambe le squadre sono vive
-        attaccante, difensore = party1[turno % len(party1)], party2[turno % len(party2)]
-
-        print(f"\nTurno {turno + 1}")
-        print(f"{attaccante['nome']} attacca {difensore['nome']}")
-
-     
-        esito_attacco = esegui_attacco(attaccante, difensore)
-        print(esito_attacco)
-
-    
-        esito_abilita = abilita_speciale(attaccante)
-        print(f"Abilità speciale attivata: {esito_abilita}")
-
-    
-        if difensore["vita"] <= 0:
-            print(f"{difensore['nome']} è stato eliminato!")
-            party2.remove(difensore)
-
-        turno += 1
-
-
-    if len(party1) == 0:
-        print("La squadra 2 ha vinto!")
-    elif len(party2) == 0:
-        print("La squadra 1 ha vinto!")
-
-
-
-party1 = [crea_personaggio("Guerriero"), crea_personaggio("Mago"), crea_personaggio("Ladro"),
-          crea_personaggio("Chierico")]
-party2 = [crea_personaggio("Guerriero"), crea_personaggio("Mago"), crea_personaggio("Ladro"),
-          crea_personaggio("Chierico")]
-
-combattimento(party1, party2)
+# Simulazione della partita
+squadra1 = crea_squadra()
+squadra2 = crea_squadra()
+risultato = combattimento(squadra1, squadra2)
+print(risultato)
