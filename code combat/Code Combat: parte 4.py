@@ -1,6 +1,5 @@
 import random
 
-# Definizione delle classi e dei loro parametri
 CLASSI = {
     "Guerriero": {"vita": (100, 120), "energia": (8, 10), "difesa": (4, 8), "attacco": (2, 6), "abilita": (1, 6)},
     "Mago": {"vita": (70, 90), "energia": (14, 18), "difesa": (3, 5), "attacco": (1, 20), "abilita": (1, 8)},
@@ -9,7 +8,6 @@ CLASSI = {
 }
 
 def crea_personaggio(tipo):
-    """Crea un personaggio con valori casuali."""
     attributi = CLASSI[tipo]
     return {
         "tipo": tipo,
@@ -21,15 +19,12 @@ def crea_personaggio(tipo):
     }
 
 def crea_squadra():
-    """Crea una squadra con un personaggio per classe."""
     return [crea_personaggio(tipo) for tipo in CLASSI]
 
 def lancia_dadi(numero, facce):
-    """Simula il lancio di più dadi."""
     return sum(random.randint(1, facce) for _ in range(numero))
 
 def scegli_bersaglio(attaccante, nemici):
-    """Determina il bersaglio in base alla classe dell'attaccante."""
     if attaccante["tipo"] == "Guerriero":
         return max(nemici, key=lambda p: p["vita"], default=None)
     elif attaccante["tipo"] == "Mago":
@@ -41,7 +36,6 @@ def scegli_bersaglio(attaccante, nemici):
     return None
 
 def attacca(attaccante, bersaglio):
-    """Esegue l'attacco di un personaggio."""
     if attaccante["energia"] < 2:
         attaccante["energia"] = CLASSI[attaccante["tipo"]]["energia"][1] 
         return
@@ -50,7 +44,6 @@ def attacca(attaccante, bersaglio):
     attaccante["energia"] -= 2
 
 def usa_abilita(personaggio, nemici, alleati):
-    """Attiva l'abilità speciale se possibile."""
     if lancia_dadi(1, personaggio["abilita"][1]) == personaggio["abilita"][1]:
         if personaggio["tipo"] == "Guerriero":
             if lancia_dadi(1, 6) >= 5:
@@ -67,7 +60,6 @@ def usa_abilita(personaggio, nemici, alleati):
                 piu_debole["vita"] += lancia_dadi(2, 6)
 
 def combattimento(squadra1, squadra2):
-    """Gestisce il combattimento tra le due squadre."""
     while squadra1 and squadra2:
         for i in range(min(len(squadra1), len(squadra2))):
             attacca(squadra1[i], scegli_bersaglio(squadra1[i], squadra2))
@@ -78,7 +70,6 @@ def combattimento(squadra1, squadra2):
         squadra2 = [p for p in squadra2 if p["vita"] > 0]
     return "Squadra 1 vince!" if squadra1 else "Squadra 2 vince!"
 
-# Simulazione della partita
 squadra1 = crea_squadra()
 squadra2 = crea_squadra()
 risultato = combattimento(squadra1, squadra2)
