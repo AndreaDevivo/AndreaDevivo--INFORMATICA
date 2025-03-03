@@ -1,80 +1,83 @@
 import random
 
-
-def genera_matrice(n):
-
-    numeri = [] 
-
-    while len(numeri) < n * n:
-        num = random.randint(1, n * n) 
-        if num not in numeri:
-            numeri.append(num)
-
-    
-    matrice = [numeri[i:i + n] for i in range(0, len(numeri), n)]
+def genera_matrice(n: int, numeri_validi: list):
+  
+  
+    matrice = []
+  
+    numeri_disponibili = numeri_validi[:]   
+  
+    for _ in range(n):
+      
+        riga = []
+      
+        for _ in range(n):
+          
+            num = random.choice(numeri_disponibili)
+          
+            riga.append(num)
+          
+            numeri_disponibili.remove(num)
+          
+        matrice.append(riga)
+      
     return matrice
 
-
-def somma_riga(matrice, riga):
-  
-    return sum(matrice[riga])
-
-
-def somma_colonna(matrice, colonna):
-    
-    return sum(matrice[i][colonna] for i in range(len(matrice)))
-
-
-def somma_diagonale(matrice, diagonale):
-
-    n = len(matrice)  
-    if diagonale == 0: 
-        return sum(matrice[i][i] for i in range(n))
-    else: 
-        return sum(matrice[i][n - 1 - i] for i in range(n))
-
-
 def verifica_quadrato_magico(matrice):
-   
-    n = len(matrice)  
-    costante_magica = somma_riga(matrice, 0)
-
-   
-    for i in range(n):
-        if somma_riga(matrice, i) != costante_magica:
-            return False, None
-
-    
-    for i in range(n):
-        if somma_colonna(matrice, i) != costante_magica:
-            return False, None
-
   
-    if somma_diagonale(matrice, 0) != costante_magica or somma_diagonale(matrice, 1) != costante_magica:
-        return False, None
-
-   
-    return True, costante_magica
-
+    risultato_righe = []
+  
+    contatore = 0
+  
+    for riga in matrice:
+      
+        for elemento in riga:
+          
+            contatore += elemento
+          
+        risultato_righe.append(contatore)
+      
+        contatore = 0
+      
+    for i in range(len(risultato_righe)):
+      
+        if risultato_righe[i] != risultato_righe[0]:
+          
+            return False
+          
+    return True
+  
 
 def stampa_matrice(matrice, costante_magica=None):
-    
-    for riga in matrice:
-        print(" ".join(str(x) for x in riga))  
-    if costante_magica is not None:
-        print(f"Costante di magia: {costante_magica}")
-
+  
+  
+    for i in range(len(matrice)):
+      
+        for j in range(len(matrice[i])):
+          
+            print(matrice[i][j], end=" ")
+          
+        print("\n")
 
 def main():
   
-    for n in range(3, 11):
-        while True:
-            matrice = genera_matrice(n) 
-            verifica, costante_magica = verifica_quadrato_magico(matrice) 
-            if verifica:
-                break 
-        stampa_matrice(matrice, costante_magica)
-
+    numeri_validi = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+  
+    while True:
+      
+        matrice = genera_matrice(3, numeri_validi)
+      
+        verifica = verifica_quadrato_magico(matrice)
+      
+        if verifica:
+          
+            break
+          
+        else:
+          
+            continue
+          
+    return f"{matrice} è un quadrato perfetto"
 
 if __name__ == "__main__":
-    main()
+    print(main())
