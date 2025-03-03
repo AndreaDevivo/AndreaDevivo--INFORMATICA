@@ -1,83 +1,54 @@
 import random
 
-def genera_matrice(n: int, numeri_validi: list):
-  
-  
-    matrice = []
-  
-    numeri_disponibili = numeri_validi[:]   
-  
-    for _ in range(n):
-      
-        riga = []
-      
-        for _ in range(n):
-          
-            num = random.choice(numeri_disponibili)
-          
-            riga.append(num)
-          
-            numeri_disponibili.remove(num)
-          
-        matrice.append(riga)
-      
-    return matrice
+def crea_griglia(dimensione: int, valori_possibili: list):
+    griglia = []
+    valori_disponibili = valori_possibili[:]
+    
+    for _ in range(dimensione):
+        riga_corrente = []
+        for _ in range(dimensione):
+            valore = random.choice(valori_disponibili)
+            riga_corrente.append(valore)
+            valori_disponibili.remove(valore)
+        griglia.append(riga_corrente)
+    
+    return griglia
 
-def verifica_quadrato_magico(matrice):
-  
-    risultato_righe = []
-  
-    contatore = 0
-  
-    for riga in matrice:
-      
+def controlla_quadrato_magico(griglia):
+    somme_righe = []
+    somma_corrente = 0
+    
+    for riga in griglia:
         for elemento in riga:
-          
-            contatore += elemento
-          
-        risultato_righe.append(contatore)
-      
-        contatore = 0
-      
-    for i in range(len(risultato_righe)):
-      
-        if risultato_righe[i] != risultato_righe[0]:
-          
+            somma_corrente += elemento
+        somme_righe.append(somma_corrente)
+        somma_corrente = 0
+    
+    for i in range(len(somme_righe)):
+        if somme_righe[i] != somme_righe[0]:
             return False
-          
+    
     return True
-  
 
-def stampa_matrice(matrice, costante_magica=None):
-  
-  
-    for i in range(len(matrice)):
-      
-        for j in range(len(matrice[i])):
-          
-            print(matrice[i][j], end=" ")
-          
+def mostra_griglia(griglia, somma_magica=None):
+    for i in range(len(griglia)):
+        for j in range(len(griglia[i])):
+            print(griglia[i][j], end=" ")
         print("\n")
 
 def main():
-  
-    numeri_validi = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-  
+    valori_possibili = [1, 2, 3, 4, 5, 6, 7, 8, 9]
+    
     while True:
-      
-        matrice = genera_matrice(3, numeri_validi)
-      
-        verifica = verifica_quadrato_magico(matrice)
-      
+        griglia = crea_griglia(3, valori_possibili)
+        verifica = controlla_quadrato_magico(griglia)
+        
         if verifica:
-          
             break
-          
         else:
-          
             continue
-          
-    return f"{matrice} è un quadrato perfetto"
+    
+    return f"{griglia} è un quadrato perfetto"
 
 if __name__ == "__main__":
     print(main())
