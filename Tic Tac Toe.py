@@ -50,8 +50,8 @@ def esegui_turno(tabellone, giocatore):
         colonna_input = input(f"{giocatore['nome']}, scegli la colonna (1-3): ")
 
         if riga_input.isdigit() and colonna_input.isdigit():
-            riga = int(riga_input) - 1  # Convertiamo l'input a 0-2
-            colonna = int(colonna_input) - 1  # Convertiamo l'input a 0-2
+            riga = int(riga_input) - 1 
+            colonna = int(colonna_input) - 1  
             if 0 <= riga < 3 and 0 <= colonna < 3 and tabellone[riga][colonna] == ' ':
                 tabellone[riga][colonna] = giocatore['simbolo']
                 break
